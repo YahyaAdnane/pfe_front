@@ -1,34 +1,62 @@
-// App.jsx
+// src/App.jsx
 import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+
 import ProtectedRoute from "./auth/ProtectedRoute";
+import RequireAdmin from "./auth/RequireAdmin";
+
 import LoginForm from "./auth/LoginForm";
-import { Routes, Route } from "react-router-dom";
+import SignUpForm from "./auth/SignUpForm";
+
 import AppShell from "./components/AppShell";
 import UserTable from "./content/UserTable";
 import Documents from "./content/Documents";
 
-function App() {
+// Pages publiques (crées dans src/pages)
+import Legal from "./pages/Legal";
+import Privacy from "./pages/Privacy";
+import Contact from "./pages/Contact";
+
+export default function App() {
   return (
-        <Routes>
-          {/* 1. Public login page */}
-          <Route path="/login" element={<LoginForm />} />
+    <Routes>
+      {/* ---------- Pages publiques ---------- */}
+      <Route path="/login" element={<LoginForm />} />
+      <Route path="/signup" element={<SignUpForm />} />
 
-          {/* 2. Protected “appshell” area */}
-          <Route path="/" element={ <ProtectedRoute> <AppShell /> </ProtectedRoute> }
-          >
-            {/* a) When URL is exactly "/appshell", AppShell is rendered by ProtectedRoute. 
-                  If you want an “index” inside AppShell, add a Route index element here. */}
-            {/* <Route index element={<Dashboard />} /> */}
+      {/* Footer links publics */}
+      <Route path="/legal" element={<Legal />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/contact" element={<Contact />} />
 
-            {/* b) When URL is "/appshell/admin", React Router renders UserTable inside AppShell’s <Outlet/>. */}
-            <Route path="/admin" element={<UserTable />} />
-            <Route path="/documents" element={<Documents />} />
-          </Route>
+      {/* ---------- Espace protégé (auth requise) ---------- */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <AppShell />
+          </ProtectedRoute>
+        }
+      >
+        {/* page par défaut quand on arrive sur "/" → documents */}
+        <Route index element={<Navigate to="/documents" replace />} />
 
-          {/* → Optionally, catch all unknown URLs and redirect to /login: */}
-          {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
-        </Routes>
+        {/* pages authentifiées */}
+        <Route path="documents" element={<Documents />} />
+
+        {/* /admin protégé par rôle */}
+        <Route
+          path="admin"
+          element={
+            <RequireAdmin>
+              <UserTable />
+            </RequireAdmin>
+          }
+        />
+      </Route>
+
+      {/* ---------- Fallback ---------- */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   );
 }
-
-export default App;

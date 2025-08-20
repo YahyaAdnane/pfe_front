@@ -8,11 +8,8 @@ import App from "./App";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    {/* 1) BrowserRouter at the very top */}
     <BrowserRouter>
-      {/* 2) AuthProvider next, so useAuth() works everywhere */}
       <AuthProvider>
-        {/* 3) Then your App with all its Routes */}
         <App />
       </AuthProvider>
     </BrowserRouter>
